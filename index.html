@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>My Shopping Store</title>
+</head>
+<body>
+    <header>
+        <h1>My Shopping Store</h1>
+        <nav>
+            <ul>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><button id="cart-trigger">Cart (<span id="cart-count">0</span>)</button></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="products">
+            <h2>Our Featured Products</h2>
+            <div class="product" data-name="Product 1" data-price="10">
+                <h3>Product 1</h3>
+                <img src="https://via.placeholder.com/250" alt="Product 1 Image">
+                <p>Price: $10</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+            <div class="product" data-name="Product 2" data-price="20">
+                <h3>Product 2</h3>
+                <img src="https://via.placeholder.com/250" alt="Product 2 Image">
+                <p>Price: $20</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+            <div class="product" data-name="Product 3" data-price="15">
+                <h3>Product 3</h3>
+                <img src="https://via.placeholder.com/250" alt="Product 3 Image">
+                <p>Price: $15</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div id="cart" class="cart-sidebar">
+        <h2>Your Cart</h2>
+        <div id="cart-items"></div>
+        <p>Total Amount: $<span id="total-amount">0.00</span></p>
+        <button id="close-cart">Close</button>
+        <button id="place-order">Place Order</button>
+    </div>
+
+    <footer>
+        <p>© 2023 My Shopping Store</p>
+        <div id="contact">
+            <h3>Contact Us</h3>
+            <p>Email: contact@myshoppingstore.com</p>
+        </div>
+        <div id="about">
+            <h3>About Us</h3>
+            <p>We're an online store dedicated to bringing you the best products at the best prices!</p>
+        </div>
+    </footer>
+
+    <script>
+        let cart = [];
+        let cartCount = 0;
+        let totalAmount = 0;
+
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', () => {
+                const productElement = button.closest('.product');
+                const productName = productElement.getAttribute('data-name');
+                const productPrice = parseFloat(productElement.getAttribute('data-price'));
+
+                // Add item to cart
+                cart.push({ name: productName, price: productPrice });
+                cartCount++;
+                totalAmount += productPrice;
+
+                // Update cart count and total display
+                document.getElementById('cart-count').textContent = cartCount;
+                document.getElementById('total-amount').textContent = totalAmount.toFixed(2);
+
+                // Show the cart sidebar
+                showCart();
+                updateCartItems();
+            });
+        });
+
+        document.getElementById('cart-trigger').addEventListener('click', () => {
+            showCart();
+            updateCartItems();
+        });
+
+        document.getElementById('close-cart').addEventListener('click', () => {
+            closeCart();
+        });
+
+        document.getElementById('place-order').addEventListener('click', () => {
+            // Store the total amount in local storage
+            localStorage.setItem('totalAmount', totalAmount.toFixed(2));
+
+            // Redirect to the mock payment page
+            window.location.href = 'payment.html'; // Redirect to the payment page
+        });
+
+        function showCart() {
+            document.getElementById('cart').classList.add('open');
+        }
+
+        function closeCart() {
+            document.getElementById('cart').classList.remove('open');
+        }
+
+        function updateCartItems() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            cartItemsContainer.innerHTML = ''; // Clear previous items
+
+            cart.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.textContent = `${item.name} - $${item.price.toFixed(2)}`;
+
+                // Cancel button
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel';
+                cancelButton.onclick = () => {
+                    cancelOrder(index);
+                };
+
+                itemElement.appendChild(cancelButton);
+                cartItemsContainer.appendChild(itemElement);
+            });
+        }
+
+        function cancelOrder(index) {
+            const price = cart[index].price;
+            cart.splice(index, 1); // Remove the item from the cart
+            cartCount--; // Decrease the cart count
+            totalAmount -= price; // Decrease total amount
+            document.getElementById('cart-count').textContent = cartCount; // Update cart count display
+            document.getElementById('total-amount').textContent = totalAmount.toFixed(2); // Update total display
+            updateCartItems(); // Update the cart display
+        }
+    </script>
+</body>
+</html>
